@@ -1,45 +1,27 @@
-# Use the official NVIDIA CUDA image with Ubuntu 22.04 as the base image
-FROM nvidia/cuda:12.5.0-devel-ubuntu22.04
+# Use the NVIDIA CUDA base image with CUDA 12.5.1 and cuDNN on Ubuntu 22.04
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update -y
-
-# Install dependencies
-RUN apt-get install -y \
-    git vim wget gcc  make pkg-config apt-transport-https \
-    build-essential apt-utils ca-certificates wget git vim mlocate \
-    libssl-dev curl openssh-client unzip unrar zip awscli csvkit emacs joe jq  dialog man-db manpages manpages-dev manpages-posix manpages-posix-dev nano iputils-ping sudo ffmpeg libsm6         libxext6 libboost-all-dev gnupg cifs-utils zlib1g software-properties-common \
+# Install Python, pip, and bash
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
-RUN add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt-get update -y
-RUN apt-get install -y --no-install-recommends python3 python3-dev python3-venv python3-distutils-extra
-RUN apt-get install -y --no-install-recommends python3-pip
-    
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && apt-get install -y --no-install-recommends git-lfs
+# Set Python3 as the default python
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# Upgrade pip
-RUN pip3 install --upgrade pip
+# Install pip, JupyterLab, and attrs
+RUN pip install --upgrade pip
+RUN pip install jupyterlab attrs
 
-# Install the latest version of PyTorch with CUDA support
-RUN pip3 install torch
-RUN pip3 install torch-geometric
+RUN pip install flake8 matplotlib pytest shapely torch torch_geometric torchtyping tqdm
 
-# Install Jupyter Notebook
-RUN pip3 install notebook
+# Expose port 8888 for JupyterLab
+EXPOSE 8888
 
-RUN git clone --depth https://github.com/Kitware/CMake $HOME/cmake 
-WORKDIR $HOME/cmake 
-RUN ./bootstrap
-RUN make -j"$(nproc)" install
+# Set default shell to bash for Jupyter terminals
+ENV SHELL=/bin/bash
 
-# Set the working directory
-WORKDIR /workspace
-
-# Expose the Jupyter Notebook port
-EXPOSE 6006 8888
-
-# Set the command to run Jupyter Notebook
-CMD ["/bin/sh" "-c" "jupyter lab --allow-root --ip=0.0.0.0 --no-browser --ServerApp.trust_xheaders=True --ServerApp.disable_check_xsrf=False --ServerApp.allow_remote_access=True --ServerApp.allow_origin='*' --ServerApp.allow_credentials=True"]
+# Run JupyterLab
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
