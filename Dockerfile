@@ -13,7 +13,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Install pip, JupyterLab, and attrs
 RUN pip install --upgrade pip
-RUN pip install jupyterlab attrs
+RUN pip install --upgrade attrs jupyterlab jupyterlab-git
 
 RUN pip install flake8 matplotlib pytest shapely torch torch_geometric torchtyping tqdm
 
