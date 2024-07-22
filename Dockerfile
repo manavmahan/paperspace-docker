@@ -5,7 +5,7 @@ FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
-    bash \
+    bash git unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Python3 as the default python
