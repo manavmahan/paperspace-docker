@@ -13,9 +13,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Install pip, JupyterLab, and attrs
 RUN pip install --upgrade pip
-RUN pip install --upgrade attrs jupyterlab jupyterlab-git
-
-RUN pip install flake8 matplotlib pytest shapely torch torch_geometric torchtyping tqdm
+RUN pip install --upgrade awscli attrs jupyterlab jupyterlab-git
+RUN pip install --upgrade flake8 matplotlib pytest shapely torch torch_geometric torchtyping tqdm wandb
 
 # Expose port 8888 for JupyterLab
 EXPOSE 8888
