@@ -4,14 +4,16 @@ FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 # Install Python, pip, and bash
 RUN apt-get update && apt-get install -y \
     python3 \
-    python3-pip \
+    python3-pip
+
+# Set Python3 as the default python
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+RUN apt-get update && apt-get install -y \
     bash git unzip \
     libgl1-mesa-glx libglib2.0-0 \
     build-essential libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
-
-# Set Python3 as the default python
-RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Install pip, JupyterLab, and attrs
 RUN pip install --upgrade pip
