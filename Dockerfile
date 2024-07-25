@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN apt-get update && apt-get install -y \
-    bash git unzip \
+    bash git-all unzip \
     libgl1-mesa-glx libglib2.0-0 \
     build-essential libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
