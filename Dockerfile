@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     bash git unzip \
+    libgl1-mesa-glx libglib2.0-0 \
+    build-essential libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Python3 as the default python
@@ -14,7 +16,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Install pip, JupyterLab, and attrs
 RUN pip install --upgrade pip
 RUN pip install --upgrade awscli attrs jupyterlab jupyterlab-git
-RUN pip install --upgrade flake8 matplotlib pytest shapely torch torch_geometric torchtyping tqdm wandb x-transformers
+RUN pip install --upgrade opencv-python flake8 matplotlib pytest shapely tqdm
+RUN pip install --upgrade opencv-python opencv-python torch torch_geometric torchtyping wandb x-transformers
 
 # Expose port 8888 for JupyterLab
 EXPOSE 8888
