@@ -1,5 +1,4 @@
-# Use the NVIDIA CUDA base image with CUDA 12.5.1 and cuDNN on Ubuntu 22.04
-FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -28,9 +27,16 @@ RUN apt-get update && apt-get install -y \
     build-essential libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install nginx
+RUN apt-get update && apt-get install -y openssh-server linux-generic
+
+# COPY nginx.conf /etc/nginx/nginx.conf
+
 # Install pip, JupyterLab, and attrs
 RUN pip install --upgrade pip
 RUN pip install --upgrade awscli attrs jupyterlab jupyterlab-git
+
+# Install CUDA
 RUN pip install --upgrade flake8 matplotlib pytest shapely tqdm
 RUN pip install --upgrade opencv-python torch==2.3.1 torch_geometric torchtyping wandb x-transformers
 
@@ -40,5 +46,9 @@ EXPOSE 8888
 # Set default shell to bash for Jupyter terminals
 ENV SHELL=/bin/bash
 
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Run JupyterLab
-CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+CMD ["/start.sh"]
+
