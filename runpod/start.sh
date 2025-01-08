@@ -1,6 +1,27 @@
 #!/bin/bash
 set -e  # Exit the script if any statement returns a non-true return value
 
+# ---------------------------------------------------------------------------- #
+#                          Function Definitions                                #
+# ---------------------------------------------------------------------------- #
+
+# Start nginx service
+start_nginx() {
+    echo "Starting Nginx service..."
+    service nginx start
+}
+
+# Execute script if exists
+execute_script() {
+    local script_path=$1
+    local script_msg=$2
+    if [[ -f ${script_path} ]]; then
+        echo "${script_msg}"
+        bash ${script_path}
+    fi
+}
+
+# Setup ssh
 setup_ssh() {
     if [[ $PUBLIC_KEY ]]; then
         echo "Setting up SSH..."
@@ -8,7 +29,32 @@ setup_ssh() {
         echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
         chmod 700 -R ~/.ssh
 
+         if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+            ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -q -N ''
+            echo "RSA key fingerprint:"
+            ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
+        fi
+
+        if [ ! -f /etc/ssh/ssh_host_dsa_key ]; then
+            ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -q -N ''
+            echo "DSA key fingerprint:"
+            ssh-keygen -lf /etc/ssh/ssh_host_dsa_key.pub
+        fi
+
+        if [ ! -f /etc/ssh/ssh_host_ecdsa_key ]; then
+            ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N ''
+            echo "ECDSA key fingerprint:"
+            ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub
+        fi
+
+        if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
+            ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -q -N ''
+            echo "ED25519 key fingerprint:"
+            ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+        fi
+
         service ssh start
+
         echo "SSH host keys:"
         for key in /etc/ssh/*.pub; do
             echo "Key: $key"
@@ -17,12 +63,14 @@ setup_ssh() {
     fi
 }
 
+# Export env vars
 export_env_vars() {
     echo "Exporting environment variables..."
     printenv | grep -E '^RUNPOD_|^PATH=|^_=' | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
     echo 'source /etc/rp_environment' >> ~/.bashrc
 }
 
+# Start jupyter lab
 start_jupyter() {
     if [[ $JUPYTER_PASSWORD ]]; then
         echo "Starting Jupyter Lab..."
@@ -33,11 +81,35 @@ start_jupyter() {
     fi
 }
 
+# Mount AWS S3 bucket
+mount_s3_bucket() {
+    if [[ $AWS_S3_BUCKET && $AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY ]]; then
+        echo "Mounting S3 bucket..."
+        mkdir -p /mnt/s3
+        s3fs $AWS_S3_BUCKET /mnt/s3 -o url=https://s3.amazonaws.com -o use_path_request_style -o allow_other -o iam_role=auto -o passwd_file=/etc/passwd-s3fs
+        echo "S3 bucket mounted at /mnt/s3"
+    else
+        echo "AWS S3 credentials or bucket name not provided. Skipping S3 mount."
+    fi
+}
+
+# ---------------------------------------------------------------------------- #
+#                               Main Program                                   #
+# ---------------------------------------------------------------------------- #
+
+start_nginx
+
+execute_script "/pre_start.sh" "Running pre-start script..."
+
 echo "Pod Started"
 
 setup_ssh
 start_jupyter
 export_env_vars
+# mount_s3_bucket
+
+execute_script "/post_start.sh" "Running post-start script..."
 
 echo "Start script(s) finished, pod is ready to use."
+
 sleep infinity

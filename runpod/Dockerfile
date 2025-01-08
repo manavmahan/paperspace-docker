@@ -1,44 +1,18 @@
-FROM ubuntu:22.04
+# Base image
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-devel
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Update keys and repositories
+RUN apt-get update
+RUN apt-get install g++ git ssh nginx -y
 
-# Install Python, pip, and bash
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip
+# Upgrade pip and install PyTorch with CUDA support
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip3 install --no-cache-dir pytorch-fast-transformers
+RUN pip3 install --no-cache-dir --upgrade jupyterlab jupyterlab-git
 
-# Set Python3 as the default python
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Set the timezone
-ENV TZ=Europe/Berlin
-
-# Install tzdata and other packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tzdata curl vim && \
-    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure --frontend noninteractive tzdata && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-
-RUN apt-get update && apt-get install -y \
-    bash git-all unzip software-properties-common\
-    libgl1 libglib2.0-0 \
-    build-essential libopenmpi-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install nginx
-RUN apt-get update && apt-get install -y openssh-server linux-generic
-
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-# Install pip, JupyterLab, and attrs
-RUN pip install --upgrade pip
-RUN pip install --upgrade awscli attrs jupyterlab jupyterlab-git
-
-# Install CUDA
-RUN pip install --upgrade flake8 matplotlib pytest shapely tqdm
-RUN pip install --upgrade opencv-python torch==2.3.1 torch_geometric torchtyping wandb x-transformers
+COPY requirements.txt requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
+RUN apt-get install zip unzip -y
 
 # Expose port 8888 for JupyterLab
 EXPOSE 8888
@@ -51,4 +25,3 @@ RUN chmod +x /start.sh
 
 # Run JupyterLab
 CMD ["/start.sh"]
-
