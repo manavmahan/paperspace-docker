@@ -12,7 +12,12 @@ RUN pip3 install --no-cache-dir --upgrade jupyterlab jupyterlab-git
 
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN apt-get install zip unzip -y
+
+RUN pip install awscli
+COPY sync.sh /sync.sh
+RUN chmod +x /sync.sh
+
+RUN apt-get install p7zip-full -y
 
 # Expose port 8888 for JupyterLab
 EXPOSE 8888

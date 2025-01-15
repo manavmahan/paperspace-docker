@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit the script if any statement returns a non-true return value
+# set -e  # Exit the script if any statement returns a non-true return value
 
 # ---------------------------------------------------------------------------- #
 #                          Function Definitions                                #
@@ -81,18 +81,6 @@ start_jupyter() {
     fi
 }
 
-# Mount AWS S3 bucket
-mount_s3_bucket() {
-    if [[ $AWS_S3_BUCKET && $AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY ]]; then
-        echo "Mounting S3 bucket..."
-        mkdir -p /mnt/s3
-        s3fs $AWS_S3_BUCKET /mnt/s3 -o url=https://s3.amazonaws.com -o use_path_request_style -o allow_other -o iam_role=auto -o passwd_file=/etc/passwd-s3fs
-        echo "S3 bucket mounted at /mnt/s3"
-    else
-        echo "AWS S3 credentials or bucket name not provided. Skipping S3 mount."
-    fi
-}
-
 # ---------------------------------------------------------------------------- #
 #                               Main Program                                   #
 # ---------------------------------------------------------------------------- #
@@ -106,7 +94,9 @@ echo "Pod Started"
 setup_ssh
 start_jupyter
 export_env_vars
-# mount_s3_bucket
+
+mkdir /tmp/ramdisk
+mount -t tmpfs -o size=4G tmpfs /tmp/ramdisk
 
 execute_script "/post_start.sh" "Running post-start script..."
 

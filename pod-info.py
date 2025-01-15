@@ -4,8 +4,7 @@ import json
 import os
 
 # Set your API key and Pod ID
-API_KEY = "1WD030TPD0WW71AKO7SMAB0Q2WIQSYWWUK9T2JVI"
-POD_ID = "bs8jyvfzklc0tk"
+API_KEY = os.getenv("RUNPOD_API_KEY")
 
 URL = f"https://api.runpod.io/graphql?api_key={API_KEY}"
 print(URL)
