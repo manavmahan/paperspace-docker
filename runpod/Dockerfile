@@ -1,5 +1,5 @@
 # Base image
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-devel
+FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel
 
 # Update keys and repositories
 RUN apt-get update
