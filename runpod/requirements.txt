@@ -1,29 +1,56 @@
-beartype
-black
-classifier-free-guidance-pytorch
-einops
-einx[torch]
-ezdxf
-flake8
-flask
-local-attention
-gateloop-transformer
-matplotlib
+# Core Libraries
 numpy
-onnx
-onnx2pytorch
-plotly
-pytest
-pytorch-custom-utils
-sentencepiece
-shapely
-taylor-series-linear-attention
+tqdm
+matplotlib
+
+# PyTorch and Extensions
 torch_geometric
 torchtyping
-tqdm
+pytorch-lightning
+pytorch-custom-utils
+accelerate
+einops
+einx[torch]
+ema-pytorch
+local-attention
+gateloop-transformer
 vector-quantize-pytorch==1.20.9
-wandb
 x-transformers
-tripy
+
+# Type Checking and Validation
+beartype
+
+# Machine Learning and Data Science
+scikit-learn
 scikit-spatial
+classifier-free-guidance-pytorch
+sentencepiece
+
+# Geometry and Spatial Libraries
+shapely
+ezdxf
+triangle
+tripy
+
+# Experiment Tracking
+wandb
+
+# Code Quality and Formatting
+black
+flake8
+
+# Web Framework
+flask
+
+# Visualization
+plotly
+
+# Testing
+pytest
+
+# ONNX
+onnx
+onnx2pytorch
+
+# System Monitoring
 nvitop

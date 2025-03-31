@@ -1,5 +1,5 @@
 # Base image
-FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel
 
 # Update keys and repositories
 RUN apt-get update
@@ -10,6 +10,12 @@ RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip3 install --no-cache-dir pytorch-fast-transformers
 RUN pip3 install --no-cache-dir --upgrade jupyterlab jupyterlab-git
 
+# RUN python -c "import blinker; print(blinker.__file__)"
+# RUN rm -rf /usr/lib/python3/dist-packages/blinker
+# RUN pip install Flask blinker==1.4
+# RUN pip3 install -U blinker
+# RUN pip3 show blinker
+# RUN pip3 install flask flask-cors
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
