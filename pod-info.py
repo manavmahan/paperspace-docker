@@ -7,7 +7,6 @@ import os
 API_KEY = os.getenv("RUNPOD_API_KEY")
 
 URL = f"https://api.runpod.io/graphql?api_key={API_KEY}"
-print(URL)
 HEADERS = {
     'Content-Type': 'application/json',
 }
@@ -23,12 +22,10 @@ def get_all_running_pods():
         json={'query': query},
         headers=HEADERS
     )
-    print(response.json())
+    # print(response.json())
     if response.status_code == 200:
         pods = response.json()['data']['myself']['pods']
         for pod in pods:
-            if 'manav' not in pod['name']:
-                continue
             ip = None
             port = None
             try:
@@ -38,7 +35,7 @@ def get_all_running_pods():
                         ip = p['ip']
                         port = p['publicPort']
                         break
-                yield (pod['id'], (ip, port))
+                yield (pod['name'], (ip, port, pod["id"]))
             except TypeError:
                 pass
     else:
@@ -47,22 +44,23 @@ def get_all_running_pods():
 
 # Fetch and print all running pods with their IP address and port
 pods = dict(get_all_running_pods())
+pods = dict(sorted(pods.items(), key=lambda x: x[0]))
 
 config = """Host %s
   HostName %s
   Port %s
   User root
   IdentitiesOnly yes
-  IdentityFile /Users/manav/.ssh/run_pod
+  IdentityFile /Users/manav/.ssh/runpod
   ForwardX11 yes
 """
 
 configs = []
 i = 1
-for pod, (ip, port) in pods.items():
+for pod, (ip, port, id) in pods.items():
     if ip is not None:
-        print(f"{pod} - pod{i} - {ip}:{port}")
-        configs.append(config % (f"pod{i}", ip, port))
+        print(f"{pod} - pod{i} - {id} - {ip}:{port}")
+        configs.append(config % (f"{pod}", ip, port))
         i += 1
 
 with open('/Users/manav/.ssh/config', 'w') as f:
