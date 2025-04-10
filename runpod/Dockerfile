@@ -19,7 +19,12 @@ RUN pip3 install --no-cache-dir --upgrade jupyterlab jupyterlab-git
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-RUN pip install awscli
+RUN apt-get update && apt-get install -y unzip curl && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws
+
 COPY sync.sh /sync.sh
 RUN chmod +x /sync.sh
 
