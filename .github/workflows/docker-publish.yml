@@ -14,7 +14,7 @@ env:
   REGISTRY: docker.io
   USER: manavmahan
   # github.repository as <account>/<repo>
-  IMAGE_NAME: manavmahan/pytorch-cuda-notebook
+  IMAGE_NAME: manavmahan/runpod-cuda
 
 
 jobs:
