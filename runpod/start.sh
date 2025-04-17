@@ -91,7 +91,7 @@ execute_script "/pre_start.sh" "Running pre-start script..."
 
 echo "Pod Started"
 
-/opt/venv/bin/activate
+source /opt/venv/bin/activate
 
 setup_ssh
 start_jupyter
