@@ -1,23 +1,21 @@
 # Base image
-FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel
+FROM nvidia/cuda@sha256:24c8e3581ea6330038b0d374920721983312627f8adbfcf390bdb4b399d280ed
 
 # Update keys and repositories
 RUN apt-get update
 RUN apt-get install g++ git ssh nginx -y
 
-# Upgrade pip and install PyTorch with CUDA support
-RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
-RUN pip3 install --no-cache-dir pytorch-fast-transformers
-RUN pip3 install --no-cache-dir --upgrade jupyterlab jupyterlab-git
+RUN apt-get install python3-full python3-pip -y && \
+    python3 -m venv /opt/venv && \
+    . /opt/venv/bin/activate
 
-# RUN python -c "import blinker; print(blinker.__file__)"
-# RUN rm -rf /usr/lib/python3/dist-packages/blinker
-# RUN pip install Flask blinker==1.4
-# RUN pip3 install -U blinker
-# RUN pip3 show blinker
-# RUN pip3 install flask flask-cors
+RUN . /opt/venv/bin/activate && pip install --no-cache-dir --upgrade pip torch
+RUN . /opt/venv/bin/activate && pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN . /opt/venv/bin/activate && pip install --no-cache-dir pytorch-fast-transformers
+RUN . /opt/venv/bin/activate && pip install --no-cache-dir --upgrade jupyterlab jupyterlab-git
+
 COPY requirements.txt requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN . /opt/venv/bin/activate && pip install --no-cache-dir -r requirements.txt
 
 RUN apt-get update && apt-get install -y unzip curl && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
@@ -27,8 +25,6 @@ RUN apt-get update && apt-get install -y unzip curl && \
 
 COPY sync.sh /sync.sh
 RUN chmod +x /sync.sh
-
-RUN apt-get install p7zip-full -y
 
 # Expose port 8888 for JupyterLab
 EXPOSE 8888
